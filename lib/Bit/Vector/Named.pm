@@ -5,7 +5,7 @@ use warnings;
 use Carp;
 use Bit::Vector;
 use vars qw($VERSION $AUTOLOAD);
-$VERSION = '0.020';
+$VERSION = '0.022';
 
 =head1 NAME
 
@@ -158,9 +158,7 @@ sub has {
 	my $val = $self->{labels}->{$named_val};
 	$val = $named_val unless defined $val;
 	my $vc1 = Bit::Vector->new_Dec($self->{size}, $val);
-	my $vc2 = $self->{vector}->Clone;
-	$vc2->And($vc1, $vc2);
-	if( $vc2->equal($vc1) ) { return 1 } else { return }
+	if( $vc1->subset($self->{vector}) ) { return 1 } else { return }
 }
 
 =item B<equal>
@@ -173,7 +171,7 @@ sub has {
 
 sub equal {
 	my($self, $vec2) = @_;
-	return ($self->{vec}->equal($vec2->{vec}));
+	return ($self->{vector}->equal($vec2->{vector}));
 }
 
 =item B<Clone>

@@ -6,5 +6,5 @@ WriteMakefile(
     VERSION_FROM => 'lib/Bit/Vector/Named.pm', # finds $VERSION
     AUTHOR       => 'William Hererra (whererra@skylightview.com)',
     ABSTRACT     => 'Named bit vectors',
-    PREREQ_PM    => { Bit::Vector::Minimal => 0, Test::More => 0 },
+    PREREQ_PM    => { Bit::Vector => 0, Test::More => 0 },
 );

@@ -1,6 +1,6 @@
 # t/test01.t - check module load and run
 
-use Test::More tests => 12;
+use Test::More tests => 15;
 
 BEGIN { use_ok( 'Bit::Vector::Named' ); }
 
@@ -25,10 +25,15 @@ ok($vector->is('all4'), "Check is");
 $vector->clear('read');
 ok(!$vector->has('read'), "Check clear");
 ok($vector->is('weo'), "Check is again");
-my $vec2 = $vector->Clone();
+my $vec2 = $vector->Clone;
+my $vec3 = $vec2->Clone;
+$vec3->set(31);
+ok($vec2->equal($vector), "Check equals");
+ok(! $vec2->equal($vec3), "Check equals not");
+ok($vec3->has('all4'), "Check has with alternate initialization");
 ok($vec2->is('weo'), "Check the copy");
-my $vec3 = new Bit::Vector::Named(size => 16, labels => $labels);
-$vec2->And($vec2, $vec3);
+my $vec4 = new Bit::Vector::Named(size => 16, labels => $labels);
+$vec2->And($vec2, $vec4);
 ok($vec2->is('nil'), "Check after passthrough to Bit::Vector");
 ok($vector->is('weo'), "Check original for no side effects");
 ok($vector->to_Enum eq '1-3', "Check for passthrough stringification");
