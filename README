@@ -1,0 +1,36 @@
+Bit::Vector::Named
+
+NAME
+
+Bit::Vector::Named - Named bit vectors
+
+LANGUAGE
+
+Pure Perl.
+
+DESCRIPTION
+
+Allows user-defined labels to be used to describe bit vectors.
+
+SYNOPSIS
+
+use Bit::Vector::Named;
+my $labels = {
+	'read' => 1,
+	'write' => 2,
+	'execute' => 4,
+	'rw' => 3,
+	'all4' => 15,
+};
+my $vector = new Bit::Vector::Named(size => 8, labels => $labels);
+$vector->set('all4');
+unless($vector->has('rw')) { print "bizzare vector math!" }
+
+To install:
+
+perl Makefile.PL
+make
+make test
+make install
+
+If you are on a windows box you should use 'nmake' rather than 'make'.

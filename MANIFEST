@@ -1,0 +1,9 @@
+MANIFEST
+LICENSE
+README
+Todo
+Changes
+lib/Bit/Vector/Named.pm
+t/test01.t
+Makefile.PL
+META.yml                                 Module meta-data (added by MakeMaker)
