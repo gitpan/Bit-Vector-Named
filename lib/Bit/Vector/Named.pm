@@ -5,7 +5,7 @@ use warnings;
 use Carp;
 use Bit::Vector;
 use vars qw($VERSION $AUTOLOAD);
-$VERSION = '0.022';
+$VERSION = '0.023';
 
 =head1 NAME
 

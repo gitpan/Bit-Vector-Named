@@ -10,3 +10,6 @@ Revision history for Perl module Bit::Vector::Named
 0.022 Tues March 2 12:33:03 2004
 	-cleaned up typo in equals
 	
+0.023 Tues March 2 21:51:36 2004
+	- corrected test #12 for hash order variance
+	

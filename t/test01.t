@@ -37,5 +37,5 @@ $vec2->And($vec2, $vec4);
 ok($vec2->is('nil'), "Check after passthrough to Bit::Vector");
 ok($vector->is('weo'), "Check original for no side effects");
 ok($vector->to_Enum eq '1-3', "Check for passthrough stringification");
-ok(join(" ", keys %{$vector->to_Hash()}) eq 'weo nil execute own write', 
+ok(join(" ", sort keys %{$vector->to_Hash()}) eq 'execute nil own weo write', 
 	"Test hash stringification");
