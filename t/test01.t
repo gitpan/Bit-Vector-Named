@@ -1,6 +1,6 @@
 # t/test01.t - check module load and run
 
-use Test::More tests => 11;
+use Test::More tests => 12;
 
 BEGIN { use_ok( 'Bit::Vector::Named' ); }
 
@@ -32,3 +32,5 @@ $vec2->And($vec2, $vec3);
 ok($vec2->is('nil'), "Check after passthrough to Bit::Vector");
 ok($vector->is('weo'), "Check original for no side effects");
 ok($vector->to_Enum eq '1-3', "Check for passthrough stringification");
+ok(join(" ", keys %{$vector->to_Hash()}) eq 'weo nil execute own write', 
+	"Test hash stringification");

@@ -5,8 +5,7 @@ use warnings;
 use Carp;
 use Bit::Vector;
 use vars qw($VERSION $AUTOLOAD);
-$VERSION = '0.01_01';
-
+$VERSION = '0.020';
 
 =head1 NAME
 
@@ -19,15 +18,15 @@ Derived from Bit::Vector.
 
 =head1 SYNOPSIS
 
-use Bit::Vector::Named;
-my $labels = {
-	'read' => 1,
-	'write' => 2,
-	'execute' => 4,
-	'rw' => 3,
-	'all4' => 15,
-};
-my $vector = new Bit::Vector::Named(size => 8, labels => $labels);
+	use Bit::Vector::Named;
+	my $labels = {
+		'read' => 1,
+		'write' => 2,
+		'execute' => 4,
+		'rw' => 3,
+		'all4' => 15,
+	};
+	my $vector = new Bit::Vector::Named(size => 8, labels => $labels);
 
 	$vector->set('all4');
 	unless($vector->has('rw')) { print "bizzare vector math!" }
@@ -38,18 +37,19 @@ my $vector = new Bit::Vector::Named(size => 8, labels => $labels);
 
 =item B<new>
 
-my $labels = {
-	'read' => 1,
-	'write' => 2,
-	'execute' => 4,
-	'rw' => 3,
-	'all4' => 15,
-};
-my $vector = new Bit::Vector::Named(size=>16, labels => $labels);
+	my $labels = {
+		'read' => 1,
+		'write' => 2,
+		'execute' => 4,
+		'rw' => 3,
+		'all4' => 15,
+	};
+	my $vector = new Bit::Vector::Named(size=>16, labels => $labels, value => 127);
 
-Creates a new bit vector of size size. The 'labels' argument takes a 
-reference to a hash of names and corresponding values, which are then 
-used as aliases for those values. Size is rounded up to a multiple of 8.
+	Creates a new bit vector of size size. The 'labels' argument takes a 
+	reference to a hash of names and corresponding values, which are then 
+	used as aliases for those values. Size is rounded up to a multiple of 8.
+	The initial value is set to the value of the value key or to 0 by default.
 
 =cut
 
@@ -73,16 +73,27 @@ sub new {
     # load the underlying vector object (use relationship)
     $self->{vector} = new Bit::Vector($self->{size});
     $self->{labels} = ( $args{labels} ) ? $args{labels} : {};
+    if($args{value}) { $self->{value}->from_Dec($args{value}) }
+    if($args{valueset}) {
+	    my $tvector = new Bit::Vector($self->{size});
+    	while( my($l, $v) = each %{ $args{valueset} } ) {
+    		if($v) {
+    			# if nonzero, add in
+    			$tvector->as_Dec( $self->{labels}->{$l} );
+    			$self->{value}->Or( $self->{value}, $tvector );
+    		}
+    	}
+    }		
     return $self;
 }
 
 =item B<set>
 
-$vector->set('rw');
+	$vector->set('rw');
 
-Sets the vector bits corresponding to those set in the named argument. 
-If the argument is not a label hash key, assumes the argument is a numeric
-decimal literal and passes it to the underlying Bit::Vector.
+	Sets the vector bits corresponding to those set in the named argument. 
+	If the argument is not a label hash key, assumes the argument is a numeric
+	decimal literal and passes it to the underlying Bit::Vector.
 
 =cut
 
@@ -97,11 +108,11 @@ sub set {
 
 =item B<clear>
 
-$vector->clear('read');
+	$vector->clear('read');
 
-Clears the vector bits corresponding to those set in the named argument.
-If the argument is not a label hash key, assumes the argument is a numeric
-decimal literal and passes it to the underlying Bit::Vector.
+	Clears the vector bits corresponding to those set in the named argument.
+	If the argument is not a label hash key, assumes the argument is a numeric
+	decimal literal and passes it to the underlying Bit::Vector.
 
 =cut
 
@@ -116,11 +127,11 @@ sub clear {
 
 =item B<is>
 
-if( $vector->is('w') ) { print "The vector equals 2." }
+	if( $vector->is('w') ) { print "The vector equals 2." }
 
-Returns true if the vector equals the value of the label argument.
-If the argument is not a label hash key, assumes the argument is a numeric
-decimal literal and passes it to the underlying Bit::Vector.
+	Returns true if the vector equals the value of the label argument.
+	If the argument is not a label hash key, assumes the argument is a numeric
+	decimal literal and passes it to the underlying Bit::Vector.
 
 =cut
 
@@ -134,11 +145,11 @@ sub is {
 
 =item B<has>
 
-unless($vector->has('r') { print "Vector 1 bit not set." }
+	unless($vector->has('r') { print "Vector 1 bit not set." }
 
-Returns true if the vector contians the bit pattern given by the argument.
-If the argument is not a label hash key, assumes the argument is a numeric
-decimal literal and passes it to the underlying Bit::Vector.
+	Returns true if the vector contians the bit pattern given by the argument.
+	If the argument is not a label hash key, assumes the argument is a numeric
+	decimal literal and passes it to the underlying Bit::Vector.
 
 =cut
 
@@ -154,9 +165,9 @@ sub has {
 
 =item B<equal>
 
-if($vec1->equal($vec2)) { do_stuff() }
+	if($vec1->equal($vec2)) { do_stuff() }
 
-returns true if $vec1 is equal to $vec2
+	Returns true if $vec1 is equal to $vec2
 
 =cut
 
@@ -167,9 +178,9 @@ sub equal {
 
 =item B<Clone>
 
-my $vec2 = $vector->Clone();
+	my $vec2 = $vector->Clone();
 
-Copying constuctor.
+	Copying constructor.
 
 =cut
 
@@ -181,9 +192,48 @@ sub Clone {
 	return $newvec;
 }
 
+=item B<to_Hash>
+
+	print join(' ', keys $vector->to_Hash);
+
+	Returns a reference to a hash of label => value pairs corresponding to bits 
+	which are set in the vector, ONLY IF they have corresponding labels in the 
+	labels assigned in the object constructor. 
+
+	See also Bit::Vector->as_Enum, which can print all bits in the vector, 
+	eg. print $vector->as_Enum
+
+=cut
+
+sub to_Hash {
+	my $self = shift;
+	my($label, $bit, $href);
+	while( ($label, $bit) = each %{$self->{labels}} ) {
+		$href->{$label} = $bit if $self->has($label);
+	}
+	return $href;
+}
+
+=item B<label_hash>
+
+	my $href = $vector->label_hash;
+
+	$vector->label_hash($labels);
+
+	Gets or sets a reference to the hash label list used by the object.
+
+=cut
+
+sub label_hash {
+	my $self = shift;
+	my $lhref = shift;
+	if($lhref and ref $lhref) { $self->{labels} = $lhref }
+	return $self->{labels};
+}
+
 =item B<Other methods>
 
-Functionally, if not via the usual mechanisms, this class is a derived 
+Functionally, if not via the usual mechanisms, this class is derived 
 from Bit::Vector. The package will therefore pass method calls it does
 not overload to the base class for processing. This means a bad function 
 call may die as a call to Bit::Vector, with error messages from that package.
@@ -205,8 +255,6 @@ sub AUTOLOAD {
 	eval $evalstr;
 	return $retval;
 }
-
-sub DESTROY {}
 
 =back
 

@@ -3,4 +3,6 @@ Revision history for Perl module Bit::Vector::Named
 0.01_01 Sat Feb 28 14:58:58 2004
 	- original version; created by ExtUtils::ModuleMaker 0.31229
 
-
+0.02	Sun Feb 29 18:58:42 2004
+	-added a value => $val parameter for initialization to new()
+	-added a to_Hash function for use in output of values
